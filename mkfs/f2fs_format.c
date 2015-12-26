@@ -291,7 +291,7 @@ static int f2fs_prepare_super_block(void)
 
 	uuid_generate(sb->uuid);
 
-	utf8_to_utf16(sb->volume_name, (const char *)config.vol_label,
+	f2fs_utf8_to_utf16(sb->volume_name, (const char *)config.vol_label,
 				MAX_VOLUME_NAME, strlen(config.vol_label));
 	set_sb(node_ino, 1);
 	set_sb(meta_ino, 2);
