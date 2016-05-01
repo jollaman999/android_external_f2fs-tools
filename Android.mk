@@ -58,14 +58,19 @@ fsck_f2fs_src_files := \
 	fsck/main.c \
 	fsck/mount.c \
 	fsck/defrag.c \
-	fsck/resize.c
+	fsck/resize.c \
+	fsck/node.c \
+	fsck/segment.c \
+	fsck/dir.c \
+	fsck/sload.c \
+	fsck/xattr.c
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := fsck.f2fs
 LOCAL_SRC_FILES := $(fsck_f2fs_src_files)
 LOCAL_C_INCLUDES := $(common_C_INCLUDES)
 LOCAL_CFLAGS := $(version_CFLAGS)
-LOCAL_SHARED_LIBRARIES := libf2fs
+LOCAL_SHARED_LIBRARIES := libf2fs libext2_uuid libselinux
 LOCAL_MODULE_TAGS := optional
 include $(BUILD_EXECUTABLE)
 
