@@ -57,7 +57,8 @@ fsck_f2fs_src_files := \
 	fsck/fsck.c \
 	fsck/main.c \
 	fsck/mount.c \
-	fsck/defrag.c
+	fsck/defrag.c \
+	fsck/resize.c
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := fsck.f2fs
