@@ -66,6 +66,8 @@ static void parse_feature(char *features)
 {
 	if (!strcmp(features, "encrypt")) {
 		config.feature |= cpu_to_le32(F2FS_FEATURE_ENCRYPT);
+	} else if (config.smr_mode) {
+		config.feature |= cpu_to_le32(F2FS_FEATURE_HMSMR);
 	} else {
 		MSG(0, "Error: Wrong features\n");
 		mkfs_usage();
