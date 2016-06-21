@@ -26,8 +26,8 @@
 #include <linux/types.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
-#include <scsi/scsi.h>
-#include <scsi/sg.h>
+#include "/usr/include/scsi/scsi.h"
+#include "/usr/include/scsi/sg.h"
 
 #define zbc_error(format, args...)			\
 	fprintf(stderr, "[ERROR] " format, ##args)
