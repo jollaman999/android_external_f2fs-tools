@@ -22,8 +22,12 @@
 #include <sys/stat.h>
 #include <sys/mount.h>
 #include <sys/ioctl.h>
+#include <scsi/sg.h>
 
 #include <f2fs_fs.h>
+
+/* SCSI command for standard inquiry*/
+#define MODELINQUIRY	0x12,0x00,0x00,0x00,0x4A,0x00
 
 #ifdef __ANDROID__
 char *hasmntopt (const struct mntent *mnt, const char *opt) {
@@ -615,6 +619,9 @@ int f2fs_get_device_info(struct f2fs_configuration *c)
 #ifdef __linux__
 	struct hd_geometry geom;
 #endif
+	sg_io_hdr_t io_hdr;
+	unsigned char reply_buffer[96];
+	unsigned char model_inq[6] = {MODELINQUIRY};
 	u_int64_t wanted_total_sectors = c->total_sectors;
 
 	fd = open(c->device_name, O_RDWR);
@@ -700,6 +707,24 @@ int f2fs_get_device_info(struct f2fs_configuration *c)
 		else
 			c->start_sector = geom.start;
 #endif
+		/* Send INQUIRY command */
+		memset(&io_hdr, 0, sizeof(sg_io_hdr_t));
+		io_hdr.interface_id = 'S';
+		io_hdr.dxfer_direction = SG_DXFER_FROM_DEV;
+		io_hdr.dxfer_len = sizeof(reply_buffer);
+		io_hdr.dxferp = reply_buffer;
+		io_hdr.cmd_len = sizeof(model_inq);
+		io_hdr.cmdp = model_inq;
+		io_hdr.timeout = 1000;
+
+		if (!ioctl(fd,SG_IO,&io_hdr)) {
+			int i = 16;
+
+			MSG(0, "Info: Disk Model: ");
+			while (reply_buffer[i] != '`')
+				printf("%c", reply_buffer[i++]);
+			printf("\n");
+		}
 	} else {
 		MSG(0, "\tError: Volume type is not supported!!!\n");
 		return -1;
@@ -708,7 +733,6 @@ int f2fs_get_device_info(struct f2fs_configuration *c)
 		MSG(0, "Info: total device sectors = %"PRIu64" (in %u bytes)\n",
 					c->total_sectors, c->sector_size);
 		c->total_sectors = wanted_total_sectors;
-
 	}
 	if (c->total_sectors * c->sector_size >
 		(u_int64_t)F2FS_MAX_SEGMENT * 2 * 1024 * 1024) {
