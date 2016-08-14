@@ -74,7 +74,6 @@ int __attribute__((weak)) f2fs_trim_device()
 			MSG(0, "Info: Discarded %lu sectors\n",
 						config.total_sectors);
 		}
-#endif
 	} else
 		return -1;
 #endif
