@@ -22,13 +22,17 @@
 #include <sys/stat.h>
 #include <sys/mount.h>
 #include <sys/ioctl.h>
+#ifndef WITH_ANDROID
 #include <scsi/sg.h>
+#endif
 #include <linux/limits.h>
 
 #include <f2fs_fs.h>
 
+#ifndef WITH_ANDROID
 /* SCSI command for standard inquiry*/
 #define MODELINQUIRY	0x12,0x00,0x00,0x00,0x4A,0x00
+#endif
 
 #ifdef __ANDROID__
 char *hasmntopt (const struct mntent *mnt, const char *opt) {
@@ -685,9 +689,11 @@ int f2fs_get_device_info(void)
 #ifdef __linux__
 	struct hd_geometry geom;
 #endif
+#ifndef WITH_ANDROID
 	sg_io_hdr_t io_hdr;
 	unsigned char reply_buffer[96];
 	unsigned char model_inq[6] = {MODELINQUIRY};
+#endif
 	u_int64_t wanted_total_sectors = c.total_sectors;
 
 	fd = open(c.device_name, O_RDWR);
@@ -773,6 +779,8 @@ int f2fs_get_device_info(void)
 		else
 			c.start_sector = geom.start;
 #endif
+
+#ifndef WITH_ANDROID
 		/* Send INQUIRY command */
 		memset(&io_hdr, 0, sizeof(sg_io_hdr_t));
 		io_hdr.interface_id = 'S';
@@ -791,6 +799,7 @@ int f2fs_get_device_info(void)
 				printf("%c", reply_buffer[i++]);
 			printf("\n");
 		}
+#endif
 	} else {
 		MSG(0, "\tError: Volume type is not supported!!!\n");
 		return -1;
@@ -806,6 +815,7 @@ int f2fs_get_device_info(void)
 		return -1;
 	}
 
+#ifndef WITH_ANDROID
 	if (c.smr_mode) {
 		if (zbc_scsi_report_zones()) {
 			MSG(0, "\tError: Not proper SMR drive\n");
@@ -818,6 +828,7 @@ int f2fs_get_device_info(void)
 			c.segs_per_sec = c.zone_sectors /
 				c.sectors_per_blk / DEFAULT_BLOCKS_PER_SEGMENT;
 	}
+#endif
 	c.segs_per_zone = c.segs_per_sec * c.secs_per_zone;
 
 	MSG(0, "Info: Segments per section = %d\n", c.segs_per_sec);
