@@ -691,7 +691,7 @@ int f2fs_get_device_info(void)
 #endif
 #ifndef WITH_ANDROID
 	sg_io_hdr_t io_hdr;
-	unsigned char reply_buffer[96];
+	unsigned char reply_buffer[96] = {0};
 	unsigned char model_inq[6] = {MODELINQUIRY};
 #endif
 	u_int64_t wanted_total_sectors = c.total_sectors;
@@ -795,7 +795,7 @@ int f2fs_get_device_info(void)
 			int i = 16;
 
 			MSG(0, "Info: Disk Model: ");
-			while (reply_buffer[i] != '`')
+			while (reply_buffer[i] != '`' && i < 80)
 				printf("%c", reply_buffer[i++]);
 			printf("\n");
 		}
