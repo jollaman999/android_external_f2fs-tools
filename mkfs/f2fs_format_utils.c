@@ -32,7 +32,7 @@
 #define BLKSECDISCARD	_IO(0x12,125)
 #endif
 
-int __attribute__((weak)) f2fs_trim_device(int fd)
+int __attribute__((weak)) f2fs_trim_device(int fd, u_int64_t bytes)
 {
 	unsigned long long range[2];
 	struct stat stat_buf;
@@ -43,7 +43,7 @@ int __attribute__((weak)) f2fs_trim_device(int fd)
 	}
 
 	range[0] = 0;
-	range[1] = stat_buf.st_size;
+	range[1] = bytes;
 
 #if defined(__linux__) && defined(BLKDISCARD)
 	MSG(0, "Info: Discarding device: %lu sectors\n", config.total_sectors);
@@ -68,8 +68,7 @@ int __attribute__((weak)) f2fs_trim_device(int fd)
 		if (ioctl(fd, BLKDISCARD, &range) < 0) {
 			MSG(0, "Info: This device doesn't support BLKDISCARD\n");
 		} else {
-			MSG(0, "Info: Discarded %lu MB\n",
-						stat_buf.st_size >> 20);
+			MSG(0, "Info: Discarded %llu MB\n", range[1] >> 20);
 		}
 	} else
 		return -1;
