@@ -723,7 +723,7 @@ static int f2fs_write_super_block(void)
 #if !defined(__ANDROID__) && !defined(ANDROID_HOST)
 static int discard_obsolete_dnode(struct f2fs_node *raw_node, u_int64_t offset)
 {
-	if (c.smr_mode)
+	if (c.zoned_mode)
 		return 0;
 	do {
 		if (offset < get_sb(main_blkaddr) ||

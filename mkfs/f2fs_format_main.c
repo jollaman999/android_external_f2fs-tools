@@ -39,7 +39,7 @@ static void mkfs_usage()
 	MSG(0, "  -t 0: nodiscard, 1: discard [default:1]\n");
 	MSG(0, "  -r reserved_bytes [default:0]\n");
 	MSG(0, "     (use only device_size-reserved_bytes for filesystem)\n");
-	MSG(0, "  -m support SMR device [default:0]\n");
+	MSG(0, "  -m support zoned block device [default:0]\n");
 	MSG(0, "sectors: number of sectors. [default: determined by device size]\n");
 	exit(1);
 }
@@ -99,7 +99,7 @@ static void f2fs_parse_options(int argc, char *argv[])
 			c.vol_label = optarg;
 			break;
 		case 'm':
-			c.smr_mode = 1;
+			c.zoned_mode = 1;
 			break;
 		case 'o':
 			c.overprovision = atof(optarg);
@@ -135,8 +135,8 @@ static void f2fs_parse_options(int argc, char *argv[])
 	if ((optind + 1) < argc)
 		c.total_sectors = atoll(argv[optind+1]);
 
-	if (c.smr_mode)
-		c.feature |= cpu_to_le32(F2FS_FEATURE_HMSMR);
+	if (c.zoned_mode)
+		c.feature |= cpu_to_le32(F2FS_FEATURE_BLKZONED);
 }
 
 int main(int argc, char *argv[])
