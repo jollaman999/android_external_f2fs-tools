@@ -32,10 +32,13 @@
 #define BLKSECDISCARD	_IO(0x12,125)
 #endif
 
-int __attribute__((weak)) f2fs_trim_device(int fd, u_int64_t bytes)
+static int __attribute__((weak)) trim_device(int i)
 {
 	unsigned long long range[2];
 	struct stat stat_buf;
+	struct device_info *dev = c.devices + i;
+	u_int64_t bytes = dev->total_sectors * dev->sector_size;
+	int fd = dev->fd;
 
 	if (fstat(fd, &stat_buf) < 0 ) {
 		MSG(1, "\tError: Failed to get the device stat!!!\n");
@@ -46,7 +49,7 @@ int __attribute__((weak)) f2fs_trim_device(int fd, u_int64_t bytes)
 	range[1] = bytes;
 
 #if defined(__linux__) && defined(BLKDISCARD)
-	MSG(0, "Info: Discarding device: %lu sectors\n", c.total_sectors);
+	MSG(0, "Info: [%s] Discarding device: %lu sectors\n", dev->path, dev->total_sectors);
 	if (S_ISREG(stat_buf.st_mode)) {
 #if defined(HAVE_FALLOCATE) && defined(FALLOC_FL_PUNCH_HOLE)
 		if (fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
@@ -56,8 +59,8 @@ int __attribute__((weak)) f2fs_trim_device(int fd, u_int64_t bytes)
 #endif
 		return 0;
 	} else if (S_ISBLK(stat_buf.st_mode)) {
-		if (c.zoned_mode)
-			return f2fs_reset_zones();
+		if (dev->zoned_model != F2FS_ZONED_NONE)
+			return f2fs_reset_zones(i);
 #ifdef BLKSECDISCARD
 		if (ioctl(fd, BLKSECDISCARD, &range) < 0) {
 			MSG(0, "Info: This device doesn't support BLKSECDISCARD\n");
@@ -75,5 +78,15 @@ int __attribute__((weak)) f2fs_trim_device(int fd, u_int64_t bytes)
 	} else
 		return -1;
 #endif
+	return 0;
+}
+
+int f2fs_trim_devices(void)
+{
+	int i;
+
+	for (i = 0; i < c.ndevs; i++)
+		if (trim_device(i))
+			return -1;
 	return 0;
 }
