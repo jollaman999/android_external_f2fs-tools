@@ -11,7 +11,7 @@
 #include "fsck.h"
 #include <locale.h>
 
-static u32 get_free_segments(struct f2fs_sb_info *sbi)
+u32 get_free_segments(struct f2fs_sb_info *sbi)
 {
 	u32 i, free_segs = 0;
 
@@ -1395,8 +1395,6 @@ void rewrite_sit_area_bitmap(struct f2fs_sb_info *sbi)
 	/* remove sit journal */
 	sum->journal.n_sits = 0;
 
-	fsck->chk.free_segs = 0;
-
 	ptr = fsck->main_area_bitmap;
 
 	for (segno = 0; segno < TOTAL_SEGS(sbi); segno++) {
@@ -1416,6 +1414,8 @@ void rewrite_sit_area_bitmap(struct f2fs_sb_info *sbi)
 			valid_blocks += get_bits_in_byte(sit->valid_map[i]);
 
 		se = get_seg_entry(sbi, segno);
+		memcpy(se->cur_valid_map, ptr, SIT_VBLOCK_MAP_SIZE);
+		se->valid_blocks = valid_blocks;
 		type = se->type;
 		if (type >= NO_CHECK_TYPE) {
 			ASSERT_MSG("Invalide type and valid blocks=%x,%x",
@@ -1426,15 +1426,6 @@ void rewrite_sit_area_bitmap(struct f2fs_sb_info *sbi)
 								valid_blocks);
 		rewrite_current_sit_page(sbi, segno, sit_blk);
 		free(sit_blk);
-
-		if (valid_blocks == 0 &&
-				sbi->ckpt->cur_node_segno[0] != segno &&
-				sbi->ckpt->cur_data_segno[0] != segno &&
-				sbi->ckpt->cur_node_segno[1] != segno &&
-				sbi->ckpt->cur_data_segno[1] != segno &&
-				sbi->ckpt->cur_node_segno[2] != segno &&
-				sbi->ckpt->cur_data_segno[2] != segno)
-			fsck->chk.free_segs++;
 
 		ptr += SIT_VBLOCK_MAP_SIZE;
 	}
