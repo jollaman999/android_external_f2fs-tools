@@ -117,7 +117,7 @@ static void f2fs_parse_options(int argc, char *argv[])
 			c.trim = atoi(optarg);
 			break;
 		case 'r':
-			config.bytes_reserved = atoi(optarg);
+			c.bytes_reserved = atoi(optarg);
 			break;
 		default:
 			MSG(0, "\tError: Unknown option %c\n",option);

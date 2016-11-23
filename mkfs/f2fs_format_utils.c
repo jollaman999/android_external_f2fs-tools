@@ -46,7 +46,7 @@ int __attribute__((weak)) f2fs_trim_device(int fd, u_int64_t bytes)
 	range[1] = bytes;
 
 #if defined(__linux__) && defined(BLKDISCARD)
-	MSG(0, "Info: Discarding device: %lu sectors\n", config.total_sectors);
+	MSG(0, "Info: Discarding device: %lu sectors\n", c.total_sectors);
 	if (S_ISREG(stat_buf.st_mode)) {
 #if defined(HAVE_FALLOCATE) && defined(FALLOC_FL_PUNCH_HOLE)
 		if (fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
