@@ -20,9 +20,7 @@
 #include <errno.h>
 #ifdef __linux__
 #include <mntent.h>
-#include <linux/types.h>
 #endif
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <sys/mount.h>
