@@ -82,7 +82,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := libf2fs_fmt-host
 LOCAL_SRC_FILES := \
     lib/libf2fs.c \
-    lib/zbc.c \
+    lib/libf2fs_zoned.c \
     mkfs/f2fs_format.c \
     mkfs/f2fs_format_utils.c \
 
@@ -97,7 +97,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := libf2fs_fmt_host_dyn
 LOCAL_SRC_FILES := \
     lib/libf2fs.c \
-    lib/zbc.c \
+    lib/libf2fs_zoned.c \
     mkfs/f2fs_format.c \
 
 LOCAL_C_INCLUDES := $(common_C_INCLUDES)
