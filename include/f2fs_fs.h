@@ -268,7 +268,9 @@ struct device_info {
 	u_int64_t total_sectors;	/* got by get_device_info */
 	u_int64_t start_blkaddr;
 	u_int64_t end_blkaddr;
+	u_int32_t start_sector;
 	u_int32_t total_segments;
+	u_int32_t bytes_reserved;
 
 	/* to handle zone block devices */
 	int zoned_model;
@@ -297,11 +299,11 @@ struct f2fs_configuration {
 	u_int64_t target_sectors;
 	u_int32_t sectors_per_blk;
 	u_int32_t blks_per_seg;
+	u_int32_t bytes_reserved;
 	__u8 init_version[VERSION_LEN + 1];
 	__u8 sb_version[VERSION_LEN + 1];
 	__u8 version[VERSION_LEN + 1];
 	char *vol_label;
-	u_int32_t bytes_reserved;
 	int heap;
 	int32_t kd;
 	int32_t dump_fd;

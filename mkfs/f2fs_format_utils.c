@@ -32,7 +32,7 @@
 #define BLKSECDISCARD	_IO(0x12,125)
 #endif
 
-static int __attribute__((weak)) trim_device(int i)
+static int trim_device(int i)
 {
 	unsigned long long range[2];
 	struct stat stat_buf;
