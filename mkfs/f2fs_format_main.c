@@ -32,15 +32,15 @@ static void mkfs_usage()
 	MSG(0, "  -d debug level [default:0]\n");
 	MSG(0, "  -e [extension list] e.g. \"mp3,gif,mov\"\n");
 	MSG(0, "  -l label\n");
+	MSG(0, "  -m support zoned block device [default:0]\n");
 	MSG(0, "  -o overprovision ratio [default:5]\n");
-	MSG(0, "  -O set feature\n");
+	MSG(0, "  -O [feature list] e.g. \"encrypt\"\n");
 	MSG(0, "  -q quiet mode\n");
 	MSG(0, "  -s # of segments per section [default:1]\n");
-	MSG(0, "  -z # of sections per zone [default:1]\n");
 	MSG(0, "  -t 0: nodiscard, 1: discard [default:1]\n");
 	MSG(0, "  -r reserved_bytes [default:0]\n");
 	MSG(0, "     (use only device_size-reserved_bytes for filesystem)\n");
-	MSG(0, "  -m support zoned block device [default:0]\n");
+	MSG(0, "  -z # of sections per zone [default:1]\n");
 	MSG(0, "sectors: number of sectors. [default: determined by device size]\n");
 	exit(1);
 }
