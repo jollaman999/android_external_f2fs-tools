@@ -798,10 +798,12 @@ int get_device_info(int i)
 			dev->total_sectors -= reserved_sectors;
 		}
 
-		if (ioctl(fd, HDIO_GETGEO, &geom) < 0)
-			dev->start_sector = 0;
-		else
-			dev->start_sector = geom.start;
+		if (i == 0) {
+			if (ioctl(fd, HDIO_GETGEO, &geom) < 0)
+				c.start_sector = 0;
+			else
+				c.start_sector = geom.start;
+		}
 #endif
 
 #ifndef WITH_ANDROID
