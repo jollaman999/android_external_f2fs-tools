@@ -17,6 +17,7 @@
 #include <sys/mount.h>
 #include <time.h>
 #include <uuid/uuid.h>
+#include <errno.h>
 
 #ifndef __ANDROID__
 #include "config.h"
@@ -259,7 +260,8 @@ int main(int argc, char *argv[])
 	}
 
 	if (f2fs_devs_are_umounted() < 0) {
-		MSG(0, "\tError: Not available on mounted device!\n");
+		if (errno != EBUSY)
+			MSG(0, "\tError: Not available on mounted device!\n");
 		return -1;
 	}
 
