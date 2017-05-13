@@ -19,9 +19,11 @@
 #include <uuid/uuid.h>
 #include <errno.h>
 
+#ifndef __ANDROID__
 #include "config.h"
 #ifdef HAVE_LIBBLKID
 #  include <blkid/blkid.h>
+#endif
 #endif
 
 #include "f2fs_fs.h"
@@ -182,7 +184,7 @@ static void f2fs_parse_options(int argc, char *argv[])
 		c.feature |= cpu_to_le32(F2FS_FEATURE_BLKZONED);
 }
 
-#ifdef HAVE_LIBBLKID
+#if !defined(__ANDROID__) && defined(HAVE_LIBBLKID)
 static int f2fs_dev_is_overwrite(const char *device)
 {
 	const char	*type;
@@ -253,7 +255,7 @@ static int f2fs_check_overwrite(void)
 	return 0;
 }
 
-#endif /* HAVE_LIBBLKID */
+#endif /* !defined(__ANDROID__) && defined(HAVE_LIBBLKID) */
 
 int main(int argc, char *argv[])
 {
