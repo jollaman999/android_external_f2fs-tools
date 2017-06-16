@@ -34,6 +34,10 @@
 #define MODELINQUIRY	0x12,0x00,0x00,0x00,0x4A,0x00
 #endif
 
+#ifndef _WIN32 /* O_BINARY is windows-specific flag */
+#define O_BINARY 0
+#endif
+
 #ifdef __ANDROID__
 char *hasmntopt (const struct mntent *mnt, const char *opt) {
 	const size_t optlen = strlen (opt);
@@ -722,7 +726,11 @@ int get_device_info(int i)
 #endif
 	struct device_info *dev = c.devices + i;
 
-	fd = open((char *)dev->path, O_RDWR);
+	if (c.sparse_mode) {
+		fd = open((char *)dev->path, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
+	} else {
+		fd = open((char *)dev->path, O_RDWR);
+	}
 	if (fd < 0) {
 		MSG(0, "\tError: Failed to open the device!\n");
 		return -1;
@@ -743,7 +751,22 @@ int get_device_info(int i)
 		return -1;
 	}
 
-	if (S_ISREG(stat_buf.st_mode)) {
+	if (c.sparse_mode) {
+		if (dev->bytes_reserved >= c.device_size) {
+			MSG(0, "\n\Error: reserved bytes (%u) is bigger than the device size (%u bytes)\n",
+			    (unsigned int) dev->bytes_reserved,
+			    (unsigned int) c.device_size);
+			return -1;
+		}
+
+		dev->total_sectors = (c.device_size - dev->bytes_reserved) / dev->sector_size;
+
+		if (dev->bytes_reserved) {
+			MSG(0, "Info: Reserved %u bytes ", (unsigned int) dev->bytes_reserved);
+			MSG(0, "from device of size %u sectors\n",
+			    (unsigned int) (c.device_size / dev->sector_size));
+		}
+	} else if (S_ISREG(stat_buf.st_mode)) {
 		if (dev->bytes_reserved >= stat_buf.st_size) {
 			MSG(0, "\n\Error: reserved bytes (%u) is bigger than the device size (%u bytes)\n",
 			    (unsigned int) dev->bytes_reserved,
@@ -753,11 +776,11 @@ int get_device_info(int i)
 
 		dev->total_sectors = (stat_buf.st_size - dev->bytes_reserved) / dev->sector_size;
 
-                if (dev->bytes_reserved) {
-                        MSG(0, "Info: Reserved %u bytes ", (unsigned int) dev->bytes_reserved);
-                        MSG(0, "from device of size %u sectors\n",
+		if (dev->bytes_reserved) {
+			MSG(0, "Info: Reserved %u bytes ", (unsigned int) dev->bytes_reserved);
+			MSG(0, "from device of size %u sectors\n",
 			    (unsigned int) (stat_buf.st_size / dev->sector_size));
-                }
+		}
 #ifdef __linux__
 	} else if (S_ISBLK(stat_buf.st_mode)) {
 		if (ioctl(fd, BLKSSZGET, &sector_size) < 0)
